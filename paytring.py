@@ -1,6 +1,7 @@
 import requests
 import hashlib
 import re
+import base64
 
 
 class Paytring:
@@ -42,6 +43,8 @@ class Order (Paytring) :
             response = requests.post(endpoint, payload)
             response =  response.json()
             if response['status'] == True:
+                if 'url' in response.keys():
+                    response['url'] = base64.b64decode(response['url']).decode('utf-8')
                 return {"response": response}
             return {"response": response}
         except Exception as e:
@@ -61,7 +64,6 @@ class Order (Paytring) :
             payload['hash'] = hash
             response = requests.post(endpoint, payload)
             response = response.json()
-            print(response)
             if response['status'] == True:
                 return {"response": response}
             return {"response": response}
@@ -77,6 +79,8 @@ class Order (Paytring) :
                 value = '|'.join(value) + '|'
                 value += self.secret
                 return hashlib.sha512(value.encode('utf-8')).hexdigest()
+            else:
+                raise Exception('Invalid Payload')
         except Exception as e:
             raise Exception(str(e))
 
