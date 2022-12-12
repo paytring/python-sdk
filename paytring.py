@@ -10,7 +10,7 @@ class Paytring:
     def __init__(self):
         self.key = 'prod_cL6HC'
         self.secret = 'U9d7SieyTN'
-        self.endpoint = 'https://gp-api.mcsam.in/api/v1/'
+        self.endpoint = 'https://api.paytring.com/api/v1/'
 
 
 class Order (Paytring) :
