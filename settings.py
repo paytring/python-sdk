@@ -1,0 +1,4 @@
+PAYTRING = {
+    "key": "",
+    "secret": "",
+}
