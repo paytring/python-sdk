@@ -1,6 +1,6 @@
-from constant.url import URL
-from resources.paytring import Paytring
-from utility.utility import Utility
+from paytring.constant.url import URL
+from paytring.resources.paytring import Paytring
+from paytring.utility.utility import Utility
 import requests
 import base64
 
@@ -45,6 +45,7 @@ class Order(Paytring):
                 "cname": customer_info['cname'],
                 "email": customer_info['email'],
                 "phone": customer_info['phone'],
+                "currency" : currency
             }
 
             hash = self.utility_obj.create_hash(payload)

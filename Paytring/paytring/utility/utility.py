@@ -1,6 +1,6 @@
 import hashlib
 import re
-from resources.paytring import Paytring
+from paytring.resources import Paytring
 
 class Utility(Paytring):
     
