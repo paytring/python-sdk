@@ -1,3 +1,18 @@
+Metadata-Version: 2.1
+Name: paytring
+Version: 1.0.1
+Summary: A SDK which helps to create, fetch or refund an order on Paytring
+Home-page: https://github.com/paytring/python-sdk
+Author: Paytirng
+Author-email: developer@paytring.com
+License: MIT
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
 # Paytring\Python
 ---
 ### Installation

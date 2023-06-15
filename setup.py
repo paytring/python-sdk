@@ -4,8 +4,8 @@ with open("Paytring/README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name="Paytring",
-    version="1.0.0",
+    name="paytring",
+    version="1.0.1",
     description="A SDK which helps to create, fetch or refund an order on Paytring",
     package_dir={"": "Paytring"},
     packages=find_packages(where="Paytring"),
