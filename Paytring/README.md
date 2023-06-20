@@ -38,6 +38,12 @@ order = Order()
 - Customer Info ( Dictionary )
 - Currency (String : INR or USD)
 
+###### Optional Parameters
+
+- PG (String)
+- PG Pool ID (String)
+
+
 #### Methods
 
 ```python
@@ -53,7 +59,9 @@ order.create(
     amount,
     callback_url,
     customer_info,
-    currrency
+    currrency,
+    pg(optioanl),
+    pg_pool_id(optional)
 )
 ```
 

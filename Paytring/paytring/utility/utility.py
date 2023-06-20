@@ -78,3 +78,12 @@ class Utility(Paytring):
             return True
         raise Exception('Invalid order id')
 
+    def validate_pg(self, pg) -> bool:
+        if isinstance(pg, str):
+            return True
+        raise Exception('Invalid PG')
+    
+    def validate_order(self, pg_pool_id) -> bool:
+        if isinstance(pg_pool_id, str):
+            return True
+        raise Exception('Invalid PG pool ID')

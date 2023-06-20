@@ -14,7 +14,7 @@ class Order(Paytring):
         self.refund_url = URL.REFUND
         self.utility_obj = Utility()
 
-    def create(self, receipt_id, amount, callback_url,customer_info, currency):
+    def create(self, receipt_id, amount, callback_url,customer_info, currency, pg=None, pg_pool_id=None):
         """
         Use to create an Order on Paytring
 
@@ -47,6 +47,14 @@ class Order(Paytring):
                 "phone": customer_info['phone'],
                 "currency" : currency
             }
+
+            if pg is not None:
+                self.utility_obj.validate_pg(pg)
+                payload['pg'] = pg
+
+            if pg_pool_id is not None:
+                self.utility_obj.validate_currency(pg_pool_id)
+                payload['pg_pool_id'] = pg_pool_id
 
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
