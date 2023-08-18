@@ -38,11 +38,7 @@ class Utility(Paytring):
         raise Exception('Invalid amount')
 
     def validate_phone(self, phone) -> bool:
-        if not isinstance(phone, str):
-            raise Exception('Invalid phone number')
-        
-        regex = re.compile("(0|91)?[6-9][0-9]{9}")
-        if regex.match(phone):
+        if isinstance(phone, str):
             return True
         raise Exception('Invalid phone number')
 
