@@ -83,3 +83,18 @@ class Utility(Paytring):
         if isinstance(pg_pool_id, str):
             return True
         raise Exception('Invalid PG pool ID')
+    
+    def validate_plan_title(self, title) -> bool:
+        if isinstance(title, str):
+            return True
+        raise Exception('Invalid Plan Title')
+        
+    def validate_plan_frequency(self, frequency) -> bool:
+        if isinstance(frequency, str):
+            return True
+        raise Exception('Invalid Plan Frequency')
+    
+    def validate_plan_id(self, plan_id) -> bool:
+        if isinstance(plan_id, str):
+            return True
+        raise Exception('Invalid Plan ID')
