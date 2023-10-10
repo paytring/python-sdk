@@ -9,8 +9,8 @@ from paytring import Order
 
 ### Create Order
 
+- Create instance of class Order
 ```python
-Create instance of class Order
 order = Order()
 ```
 
