@@ -14,8 +14,8 @@ pip install paytring
 ---
 ```
 import  os
-    os.environ['key'] = "your_key"
-    os.environ['secret'] = "your_secret"
+os.environ['key'] = "your_key"
+os.environ['secret'] = "your_secret"
 ```
 ## Usage
 ---
