@@ -3,6 +3,7 @@ from paytring.resources.paytring import Paytring
 from paytring.utility.utility import Utility
 import requests
 import base64
+import json
 
 class Order(Paytring):
 
@@ -14,38 +15,69 @@ class Order(Paytring):
         self.refund_url = URL.REFUND
         self.utility_obj = Utility()
 
-    def create(self, receipt_id, amount, callback_url,customer_info, currency, pg=None, pg_pool_id=None):
+    def create(self, receipt_id, callback_url, payment_info, customer_info, billing_info=None, shipping_info=None, notes=None, tpv=None, pg=None, pg_pool_id=None):
         """
         Use to create an Order on Paytring
 
         Args(type=string):
             'receipt' : Receipt Id for the order
-            'amount' :  Amount of Order
             'callback_url' : The URL where the PAYTRING will send success/failed etc. response.
-            'customer_info' : Info. about Customer.
-            'currency' : Currency in which the amount is entered 
+
+        Args(type=array):
+            'payment_info' : Info about payment details like currency and amount.
+            'customer_info' : Info about Customer
+            'billing_info' : customer billing address
+            'shipping_info' : customer shipping address
+            'notes' : notes of udf fields
 
         Returns:
             Order Dict created for given reciept ID
         """
         try:
+            self.utility_obj.validate_receipt(receipt_id)
+            self.utility_obj.validate_callback_url(callback_url)
+            self.utility_obj.validate_amount(payment_info['amount'])
+            self.utility_obj.validate_currency(payment_info['currency'].upper())
             self.utility_obj.vaidate_customer_info(customer_info)
             self.utility_obj.validate_email(customer_info['email'])
             self.utility_obj.validate_phone(customer_info['phone'])
-            self.utility_obj.validate_amount(amount)
-            self.utility_obj.validate_callback_url(callback_url)
-            self.utility_obj.validate_receipt(receipt_id)
-            self.utility_obj.validate_currency(currency.upper())
-        
+            
             payload = {
                 "key": self.key,
                 "receipt_id": receipt_id,
-                "amount": amount,
+                "amount": payment_info['amount'],
                 "callback_url": callback_url,
                 "cname": customer_info['cname'],
                 "email": customer_info['email'],
                 "phone": customer_info['phone'],
-                "currency" : currency
+                "currency" : payment_info['currency'],
+                "billing_address": {
+                    'firstname': billing_info['firstname'] if billing_info['firstname'] else None,
+                    'lastname': billing_info['lastname'] if billing_info['lastname'] else None,
+                    'phone': billing_info['phone'] if billing_info['phone'] else None,
+                    'line1': billing_info['line1'] if billing_info['line1'] else None,
+                    'line2': billing_info['line2'] if billing_info['line2'] else None,
+                    'city': billing_info['city'] if billing_info['city'] else None,
+                    'state': billing_info['state'] if billing_info['state'] else None,
+                    'country': billing_info['country'] if billing_info['country'] else None,
+                    'zipcode': billing_info['zipcode'] if billing_info['zipcode'] else None,
+                },
+                "shipping_address": {
+                    'firstname': shipping_info['firstname'] if shipping_info['firstname'] else None,
+                    'lastname': shipping_info['lastname'] if shipping_info['lastname'] else None,
+                    'phone': shipping_info['phone'] if shipping_info['phone'] else None,
+                    'line1': shipping_info['line1'] if shipping_info['line1'] else None,
+                    'line2': shipping_info['line2'] if shipping_info['line2'] else None,
+                    'city': shipping_info['city'] if shipping_info['city'] else None,
+                    'state': shipping_info['state'] if shipping_info['state'] else None,
+                    'country': shipping_info['country'] if shipping_info['country'] else None,
+                    'zipcode': shipping_info['zipcode'] if shipping_info['zipcode'] else None,
+                },
+                "notes": {
+                    'udf1': notes['udf1'] if notes['udf1'] else None,
+                    'udf2': notes['udf2'] if notes['udf2'] else None,
+                    'udf3': notes['udf3'] if notes['udf3'] else None,
+                }
             }
 
             if pg is not None:
@@ -58,8 +90,8 @@ class Order(Paytring):
 
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-
-            response = requests.post(self.order_create_url, payload)
+            print(payload)
+            response = requests.post(self.order_create_url, json=payload)
             response = response.json()
             if response['status'] == True:
                     if 'url' in response.keys():

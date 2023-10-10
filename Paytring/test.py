@@ -1,10 +1,15 @@
 import os
 os.environ['key'] = "prod_key"
 os.environ['secret'] = "prod_secret"
+
+from paytring.client import Order
 from paytring.client import Subscription
+
+order = Order()
 subscription = Subscription()
 
-receipt_id = "sub123456789"
+
+receipt_id = "sub1234776969"
 plan_id = "PLAN123456789"
 callback_url = "https://httpbin.org/post"
 customer_info = {
@@ -50,13 +55,31 @@ notes = {
     "udf2" : "udf2",
     "udf3" : "udf3",
 }
+tpv = [
+    {
+        "name": "Ramsharan Yadav",
+        "account_number": "016191800051274",
+        "ifsc": "YESB0000161"
+    }
+]
 
-response  = subscription.create_plan(
-    plan_id,
+response = order.create(
+    receipt_id,
+    callback_url,
     payment_info,
-    plan_info,
-    notes
+    customer_info,
+    billing_info,
+    shipping_info,
+    notes,
+    tpv,
 )
+
+# response  = subscription.create_plan(
+#     plan_id,
+#     payment_info,
+#     plan_info,
+#     notes
+# )
 
 # response  = subscription.fetch_plan(
 #     "552410243112370870"
