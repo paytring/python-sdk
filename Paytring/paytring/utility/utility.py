@@ -11,10 +11,10 @@ class Utility(Paytring):
         try:
             if len(body.keys()) != 0:
                 keys = sorted(body.keys())
-                value = [body[key] for key in keys]
-                value = '|'.join(value) + '|'
-                value += self.secret
-                return hashlib.sha512(value.encode('utf-8')).hexdigest()
+                values = [str(body[key]) for key in keys if not isinstance(body[key], dict)]
+                values = '|'.join(values) + '|'
+                values += self.secret
+                return hashlib.sha512(values.encode('utf-8')).hexdigest()
             else:
                 raise Exception('Invalid Payload')
         except Exception as e:

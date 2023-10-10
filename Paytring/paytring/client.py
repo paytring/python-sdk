@@ -88,7 +88,7 @@ class Order(Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.order_fetch_url, payload)
+            response = requests.post(self.order_fetch_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -116,7 +116,7 @@ class Order(Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.order_fetch_by_receipt_url, payload)
+            response = requests.post(self.order_fetch_by_receipt_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -142,7 +142,7 @@ class Order(Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.refund_url, payload)
+            response = requests.post(self.refund_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -195,16 +195,15 @@ class Subscription (Paytring):
                 "frequency": plan_info['frequency'],
                 "cycle": plan_info['cycle'] if plan_info['cycle'] else '12',
                 "notes": {
-                    'udf1': notes['udf1'] if notes['udf1'] else None,
-                    'udf2': notes['udf2'] if notes['udf2'] else None,
-                    'udf3': notes['udf3'] if notes['udf3'] else None,
+                    "udf1": notes['udf1'] if notes['udf1'] else None,
+                    "udf2": notes['udf2'] if notes['udf2'] else None,
+                    "udf3": notes['udf3'] if notes['udf3'] else None
                 }
             }
 
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-
-            response = requests.post(self.plan_create_url, payload)
+            response = requests.post(self.plan_create_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -231,7 +230,7 @@ class Subscription (Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.plan_fetch_url, payload)
+            response = requests.post(self.plan_fetch_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -259,7 +258,8 @@ class Subscription (Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.plan_fetch_by_receipt_url, payload)
+            
+            response = requests.post(self.plan_fetch_by_receipt_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -341,7 +341,7 @@ class Subscription (Paytring):
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
 
-            response = requests.post(self.subscription_create_url, payload)
+            response = requests.post(self.subscription_create_url, json=payload)
             response = response.json()
             if response['status'] == True:
                     if 'url' in response.keys():
@@ -370,7 +370,7 @@ class Subscription (Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.subscription_fetch_url, payload)
+            response = requests.post(self.subscription_fetch_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -378,7 +378,7 @@ class Subscription (Paytring):
         except Exception as e:
             return {"response": str(e)}
         
-    def fetch_plan_by_receipt_id(self, receipt_id):
+    def fetch_subscription_by_receipt_id(self, receipt_id):
         """
         Use to fetch an subscription on Paytring by receipt-id
 
@@ -398,7 +398,7 @@ class Subscription (Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.subscription_fetch_by_receipt_url, payload)
+            response = requests.post(self.subscription_fetch_by_receipt_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
