@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: paytring
-Version: 1.0.2
+Version: 1.0.3
 Summary: A SDK which helps to create, fetch or refund an order on Paytring
 Home-page: https://github.com/paytring/python-sdk
 Author: Paytirng

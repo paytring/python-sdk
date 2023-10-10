@@ -5,7 +5,7 @@ with open("Paytring/README.md", "r") as f:
 
 setup(
     name="paytring",
-    version="1.0.2",
+    version="1.0.3",
     description="A SDK which helps to create, fetch or refund an order on Paytring",
     package_dir={"": "Paytring"},
     packages=find_packages(where="Paytring"),
