@@ -90,7 +90,6 @@ class Order(Paytring):
 
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            print(payload)
             response = requests.post(self.order_create_url, json=payload)
             response = response.json()
             if response['status'] == True:
