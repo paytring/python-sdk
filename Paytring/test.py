@@ -1,6 +1,6 @@
 import os
-os.environ['key'] = "prod_key"
-os.environ['secret'] = "prod_secret"
+os.environ['key'] = "test_key"
+os.environ['secret'] = "test_secret"
 
 from paytring.client import Order
 from paytring.client import Subscription
