@@ -9,7 +9,6 @@ Binary installers for the latest released version are available at the Python Pa
 ```
 pip install paytring
 ```
-
 ## Set-Up Environment Variables
 ---
 ```
