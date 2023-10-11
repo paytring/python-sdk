@@ -395,7 +395,7 @@ subscription.fetch_plan(
 }
 ```
 
-## Fetch Subscription By Receipt-ID
+## Fetch Plan By Receipt-ID
 ---
 #### Input Paramete
 
@@ -438,11 +438,6 @@ subscription.fetch_plan_by_receipt_id(
         "code": 204
     }
 }
-```
-
-#### Create Instance
-```
-order = Order()
 ```
 
 ## Create Subscription
