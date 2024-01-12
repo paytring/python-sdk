@@ -1,21 +1,22 @@
 import os
-os.environ['key'] = "test_key"
-os.environ['secret'] = "test_secret"
+os.environ['key'] = "prod_key"
+os.environ['secret'] = "prod_secret"
 
 from paytring.client import Order
 from paytring.client import Subscription
+from paytring.client import CurrencyConversion
 
 order = Order()
 subscription = Subscription()
+currency = CurrencyConversion()
 
-
-receipt_id = "sub1234776969"
+receipt_id = "sub123477696"
 plan_id = "PLAN123456789"
 callback_url = "https://httpbin.org/post"
 customer_info = {
-    "cname" : "Ramsharan",
-    "email" : "ramsharan@paytring.com",
-    "phone" : "7737291210",
+    "cname" : "Rishabh",
+    "email" : "rishabh@webinfomart.com",
+    "phone" : "9560415271",
 }
 
 payment_info = {
@@ -63,16 +64,21 @@ tpv = [
     }
 ]
 
-response = order.create(
-    receipt_id,
-    callback_url,
-    payment_info,
-    customer_info,
-    billing_info,
-    shipping_info,
-    notes,
-    tpv,
-)
+# response = order.create(
+#     receipt_id,
+#     callback_url,
+#     payment_info,
+#     customer_info,
+#     billing_info,
+#     shipping_info,
+#     notes,
+#     tpv,
+# )
+
+# response = order.process_order(order_id="586513712869802236", method='upi', code='collect', vpa="")
+# response = order.validate_vpa(vpa='9560415271@paytm')
+# response = order.validate_card(bin='438976')
+# response = currency.convert_currency(currency_from='USD', currency_to='IND')
 
 # response  = subscription.create_plan(
 #     plan_id,

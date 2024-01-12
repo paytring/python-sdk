@@ -268,7 +268,7 @@ order.fetch_by_receipt_id(
 
 ## Refund Order
 ---
-##### Input Paramete
+##### Input Parameters
 
 - Order ID(string)
 
@@ -299,7 +299,74 @@ order.refund(
     }
 }
 ```
+## Process Order
+---
+##### Input Parameters
+- Order ID(string): ORder id got in response when order is created on paytring
+- Method
+- Code
 
+##### Optional Parameters
+- VPA(String) : Only required if method is upi and code is collect
+- Card : Only required if method & code is card
+- Device : Mandatory if method is upi and code is intent, eg. android, ios
+
+```
+card = {'number': "1234XXXXXXXXXXX",
+        'cvv': "123", 
+        "expiry_month": "07", 
+        "expiry_year": "21", 
+        "holder_name": "John Doee" 
+    }
+```
+#### Methods
+```
+order.process_order(order_id="paytring order id", method='card', code='card',  card=card)
+```
+#### Response
+```
+{   
+    'status': True, 
+    'payment_id': '586493765254906097', 
+    'data': {'type': 'otp', 'url': ' ', 'param': [], 'resend_url': ' ', 'resend_param': []
+    }
+}
+```
+## Validate VPA
+---
+##### Input Parameters
+- VPA(String) : VPA number you want to validate
+
+#### Methods
+```
+order.validate_vpa(vpa='vpa')
+```
+#### Response
+```
+{   
+    'status': True, 
+    'isVPAValid': True, 
+    'payerAccountName': 'John Doee'
+}
+```
+
+## Validate Card
+---
+##### Input Parameters
+- bin : Card bin you want to be validated.( first 6 digits of card number )
+
+#### Methods
+```
+response = order.validate_card(bin='438976')
+```
+#### Response
+```
+{   
+    'status': True, 
+    'isCardValid': True, 
+    'payerAccountName': 'John Doee'
+}
+```
 
 ## Subscription Usage
 ---
@@ -527,7 +594,7 @@ response = subscription.create_subscription(
 
 ## Fetch Subscription
 ---
-##### Input Paramete
+##### Input Parameters
 
 - Subscription ID(string)
 
@@ -555,7 +622,7 @@ subscription.fetch_subscription(
 
 ## Fetch Subscription By Receipt-ID
 ---
-#### Input Paramete
+#### Input Parameters
 
 - Receipt ID(string)
 
@@ -589,5 +656,32 @@ subscription.fetch_subscription_by_receipt_id(
         "message": "error message here",
         "code": 204
     }
+}
+```
+## Currency Conversion Usage
+---
+```
+from paytring.client import Settlement
+```
+
+#### Create Instance
+```
+currency = CurrencyConversion()
+```
+#### Input Parameters
+
+- currency_from(String)
+- currency_to(String)
+- Accpted Currencies : INR|USD|AUD|BGN|CAD|EUR|JPY|NZD|QAR|SGD|KRW|CHF|GBP|AED|NZD
+
+
+#### Methods
+```
+currency.convert_currency(currency_from='USD', currency_to='IND')
+```
+### Response
+```
+{   'status': True, 
+    'data': {'from': 'USD', 'to': 'INR','rate': '83.02'}
 }
 ```

@@ -1,5 +1,6 @@
 import hashlib
 import re
+from datetime import datetime
 from paytring.resources import Paytring
 
 class Utility(Paytring):
@@ -11,10 +12,10 @@ class Utility(Paytring):
         try:
             if len(body.keys()) != 0:
                 keys = sorted(body.keys())
-                value = [body[key] for key in keys]
-                value = '|'.join(value) + '|'
-                value += self.secret
-                return hashlib.sha512(value.encode('utf-8')).hexdigest()
+                values = [str(body[key]) for key in keys if not isinstance(body[key], dict)]
+                values = '|'.join(values) + '|'
+                values += self.secret
+                return hashlib.sha512(values.encode('utf-8')).hexdigest()
             else:
                 raise Exception('Invalid Payload')
         except Exception as e:
@@ -66,7 +67,7 @@ class Utility(Paytring):
 
         if not isinstance(currency, str):
             raise Exception('Invalid Currency Format number')
-        pattern = r'^(INR|USD)$'
+        pattern = r'^(INR|USD|AUD|BGN|CAD|EUR|JPY|NZD|QAR|SGD|KRW|CHF|GBP|AED|NZD)$'
         return bool(re.match(pattern, currency))
     
     def validate_order(self, order_id) -> bool:
@@ -79,7 +80,69 @@ class Utility(Paytring):
             return True
         raise Exception('Invalid PG')
     
-    def validate_order(self, pg_pool_id) -> bool:
+    def validate_pg_pool_id(self, pg_pool_id) -> bool:
         if isinstance(pg_pool_id, str):
             return True
-        raise Exception('Invalid PG pool ID')
+        raise Exception('Invalid PG Pool ID')
+    
+    def validate_subscription_id(self, plan_id) -> bool:
+        if isinstance(plan_id, str):
+            return True
+        raise Exception('Invalid Plan ID')
+    
+    def validate_plan_title(self, title) -> bool:
+        if isinstance(title, str):
+            return True
+        raise Exception('Invalid Plan Title')
+        
+    def validate_plan_frequency(self, frequency) -> bool:
+        if isinstance(frequency, str):
+            return True
+        raise Exception('Invalid Plan Frequency')
+    
+    def validate_plan_id(self, plan_id) -> bool:
+        if isinstance(plan_id, str):
+            return True
+        raise Exception('Invalid Plan ID')
+
+    def is_valid_date(self,date_string) -> bool:
+        try:
+            datetime.strptime(date_string, "%Y-%m-%d")
+            return True
+        except ValueError:
+            raise Exception('Invalid Date Format')
+        
+    def validate_pg_code(self, pg_code) -> bool:
+        if isinstance(pg_code, str):
+            return True
+        raise Exception('Invalid PG Code')\
+    
+    def validate_method(self, method) -> bool:
+        if isinstance(method, str):
+            return
+        raise Exception('Invalid method')
+    
+    def validate_code(self, code) -> bool:
+        if isinstance(code, str):
+            return
+        raise Exception('Invalid code')
+    
+    def validate_vpa(self, vpa) -> bool:
+        if isinstance(vpa, str):
+            return
+        raise Exception('Invalid code')
+    
+    def validate_card(self, card) -> bool:
+        if card.keys() == {'number', 'cvv', 'expiry_month', 'expiry_year', 'holder_name'}:
+            return True
+        raise Exception('Insufficient card info')
+    
+    def validate_device(self, device) -> bool:
+        if isinstance(device, str):
+            return
+        raise Exception('Invalid device')
+    
+    def validate_bin(self, bin) -> bool:
+        if isinstance(bin, str):
+            return True
+        raise Exception('Invalid bin')

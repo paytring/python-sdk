@@ -10,3 +10,7 @@ class URL:
     SUBSCRIPTION_CREATE = "https://api.paytring.com/api/v1/subscription/create"
     SUBSCRIPTION_FETCH = "https://api.paytring.com/api/v1/subscription/fetch"
     SUBSCRIPTION_FETCH_BY_RECIEPT = "https://api.paytring.com/api/v1/subscription/fetch/receipt"
+    CURRENY_CONVERSION = "https://api.paytring.com/api/v1/currency/get"
+    ORDER_CREATE_SEAMLESS = "https://api.paytring.com/api/v1/order/process"
+    VALIDATE_VPA = "https://api.paytring.com/api/v1/info/vpa"
+    VALIDATE_CARD = "https://api.paytring.com/api/v1/info/bin"

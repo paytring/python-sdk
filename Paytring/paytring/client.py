@@ -13,6 +13,9 @@ class Order(Paytring):
         self.order_fetch_url = URL.FETCH_ORDER
         self.order_fetch_by_receipt_url = URL.FETCH_ORDER_BY_RECIEPT
         self.refund_url = URL.REFUND
+        self.create_seamless_order_url = URL.ORDER_CREATE_SEAMLESS
+        self.validate_vpa_url = URL.VALIDATE_VPA
+        self.validate_card_url = URL.VALIDATE_CARD
         self.utility_obj = Utility()
 
     def create(self, receipt_id, callback_url, payment_info, customer_info, billing_info=None, shipping_info=None, notes=None, tpv=None, pg=None, pg_pool_id=None):
@@ -85,7 +88,7 @@ class Order(Paytring):
                 payload['pg'] = pg
 
             if pg_pool_id is not None:
-                self.utility_obj.validate_currency(pg_pool_id)
+                self.utility_obj.validate_pg_pool_id(pg_pool_id)
                 payload['pg_pool_id'] = pg_pool_id
 
             hash = self.utility_obj.create_hash(payload)
@@ -180,9 +183,133 @@ class Order(Paytring):
             return {"response": response}
         except Exception as e:
             return {"response": str(e)}
+        
+    def process_order(self,order_id,method, code, vpa=None, card=None, device=None):
+
+        """
+        Used to process transaction without opening paytring checkout , also known as seamless api or custom checkout api
+
+        Args(type=string):
+            'order_id' : Order Id for the order created on Paytring
+            'method' : Which method to be used for payment, eg. upi, nb, card, wallet, emi
+            'code' : This parameter's value changes depending on what method it is, in case of upi you have three options collect, qr, intent.
+            *'vpa' : VPA of the customer.(Only required if method is upi and code is collect)
+            *'device' : Infomartion about the device OS.(mandatory if method is upi and code is intent, eg. android, ios)
+        Args(type=array):
+            *'card' : Infomartion about customer card.(Only required if method is card)
+
+        """
+
+        try:
+            
+            self.utility_obj.validate_order(order_id)
+            self.utility_obj.validate_method(method)
+            self.utility_obj.validate_code(code)
+
+            payload = {
+                "key" : self.key,
+                "order_id" : order_id,
+                "method" : method,
+                "code" : code
+            }
 
 
-class Subscription (Paytring):
+            if method == "upi" and code == "collect":
+                if vpa is None:
+                    raise Exception("VPA info is mandatory")
+                self.utility_obj.validate_vpa(vpa)
+                payload["vpa"] = vpa
+            
+            if method == 'card':
+                if card is None:
+                    raise Exception("Please pass card info in card argument")
+                self.utility_obj.validate_card(card)
+                payload["card"] = card
+
+            if method == 'upi' and code == 'intent':
+                if device is None:
+                    raise Exception("Device Info is mandatory, eg. android,ios")
+                self.utility_obj.validate_device(device)
+                payload["device"] = device
+
+            hash = self.utility_obj.create_hash(payload)
+            payload['hash'] = hash
+            response = requests.post(self.create_seamless_order_url, json=payload)
+            response = response.json()
+            if response['status'] == True:
+                    if 'url' in response.keys():
+                        response['url'] = base64.b64decode(response['url']).decode('utf-8')
+                    return {"response": response}
+            return {"response": response}
+            
+        except Exception as e:
+
+            return {"response": str(e)}
+        
+
+    def validate_vpa(self,vpa):
+        """
+        Use by merchants integrating order process api and want to check if customer provided vpa is valid or not.
+
+        Args :
+            vpa(string) : vpa you want to be validated.
+        
+        Returns :
+
+            Dict having info whether a vpa is valid or not 
+        """
+        try:
+            self.utility_obj.validate_vpa(vpa)
+
+            payload = {
+                "key": self.key,
+                "vpa": vpa 
+            }
+
+            hash = self.utility_obj.create_hash(payload)
+            payload['hash'] = hash
+            response = requests.post(self.validate_vpa_url, json=payload)
+            response = response.json()
+            if response['status'] == True:
+                return {"response": response}
+            return {"response": response}
+            
+        except Exception as e:
+            return {"response": str(e)}
+        
+
+    def validate_card(self,bin):
+        """
+        Use by merchants integrating order process api and want to check if customer provided card is valid or not.
+
+        Args :
+            bin(string) :  card bin you want to be validated.( first 6 digits of card number )
+        
+        Returns :
+            Dict having info whether a card is valid or not 
+
+        """
+        try:
+            self.utility_obj.validate_bin(bin)
+
+            payload = {
+                "key": self.key,
+                "bin": bin 
+            }
+
+            hash = self.utility_obj.create_hash(payload)
+            payload['hash'] = hash
+            response = requests.post(self.validate_card_url, json=payload)
+            print(f"paytring response : {response}")
+            response = response.json()
+            if response['status'] == True:
+                return {"response": response}
+            return {"response": response}
+            
+        except Exception as e:
+            return {"response": str(e)}
+        
+class Subscription(Paytring):
 
     def __init__(self):
         super().__init__()
@@ -253,7 +380,7 @@ class Subscription (Paytring):
             plan Dict for given plan_id
         """
         try:
-            self.utility_obj.validate_order(plan_id)
+            self.utility_obj.validate_plan_id(plan_id)
 
             payload = {
                 "key": self.key,
@@ -366,7 +493,7 @@ class Subscription (Paytring):
                 payload['pg'] = pg
 
             if pg_pool_id is not None:
-                self.utility_obj.validate_currency(pg_pool_id)
+                self.utility_obj.validate_pg_pool_id(pg_pool_id)
                 payload['pg_pool_id'] = pg_pool_id
 
             hash = self.utility_obj.create_hash(payload)
@@ -393,7 +520,7 @@ class Subscription (Paytring):
             Subscription Dict for given subscription_id
         """
         try:
-            self.utility_obj.validate_order(subscription_id)
+            self.utility_obj.validate_subscription_id(subscription_id)
 
             payload = {
                 "key": self.key,
@@ -438,3 +565,41 @@ class Subscription (Paytring):
             return {"response": str(e)}
            
     
+class CurrencyConversion(Paytring):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.currency_conversion_url = URL.CURRENY_CONVERSION
+        self.utility_obj = Utility()
+
+    def convert_currency(self, currency_from, currency_to):
+        """
+        Use to give the latest currency conversion rate to desired currency for a given currency
+
+        Args:
+            currency_from : Base currency you want conversion to happen from
+            currency_to : Final currency you want conversion to happen to
+        
+        Returns:
+            Dict with converted currency details
+        """
+        try:
+
+            self.utility_obj.validate_currency(currency_from)
+            self.utility_obj.validate_currency(currency_to)
+
+            payload = {
+                "key": self.key,
+                "from": currency_from,
+                "to": currency_to
+            }
+            hash = self.utility_obj.create_hash(payload)
+            payload['hash'] = hash
+            response = requests.post(self.currency_conversion_url, json=payload)
+            response = response.json()
+            if response['status'] == True:
+                return {"response": response}
+            return {"response": response}
+
+        except Exception as e:
+            return {"response": str(e)}
