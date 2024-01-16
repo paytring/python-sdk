@@ -5,6 +5,7 @@ import requests
 import base64
 import json
 
+
 class Order(Paytring):
 
     def __init__(self):
@@ -40,11 +41,12 @@ class Order(Paytring):
             self.utility_obj.validate_receipt(receipt_id)
             self.utility_obj.validate_callback_url(callback_url)
             self.utility_obj.validate_amount(payment_info['amount'])
-            self.utility_obj.validate_currency(payment_info['currency'].upper())
+            self.utility_obj.validate_currency(
+                payment_info['currency'].upper())
             self.utility_obj.vaidate_customer_info(customer_info)
             self.utility_obj.validate_email(customer_info['email'])
             self.utility_obj.validate_phone(customer_info['phone'])
-            
+
             payload = {
                 "key": self.key,
                 "receipt_id": receipt_id,
@@ -53,8 +55,12 @@ class Order(Paytring):
                 "cname": customer_info['cname'],
                 "email": customer_info['email'],
                 "phone": customer_info['phone'],
-                "currency" : payment_info['currency'],
-                "billing_address": {
+                "currency": payment_info['currency'],
+            }
+
+            if billing_info is not None:
+
+                billing_address = {
                     'firstname': billing_info['firstname'] if billing_info['firstname'] else None,
                     'lastname': billing_info['lastname'] if billing_info['lastname'] else None,
                     'phone': billing_info['phone'] if billing_info['phone'] else None,
@@ -64,8 +70,12 @@ class Order(Paytring):
                     'state': billing_info['state'] if billing_info['state'] else None,
                     'country': billing_info['country'] if billing_info['country'] else None,
                     'zipcode': billing_info['zipcode'] if billing_info['zipcode'] else None,
-                },
-                "shipping_address": {
+                }
+                payload["billing_address"] = billing_address
+
+            if shipping_info is not None:
+
+                shipping_address = {
                     'firstname': shipping_info['firstname'] if shipping_info['firstname'] else None,
                     'lastname': shipping_info['lastname'] if shipping_info['lastname'] else None,
                     'phone': shipping_info['phone'] if shipping_info['phone'] else None,
@@ -75,13 +85,18 @@ class Order(Paytring):
                     'state': shipping_info['state'] if shipping_info['state'] else None,
                     'country': shipping_info['country'] if shipping_info['country'] else None,
                     'zipcode': shipping_info['zipcode'] if shipping_info['zipcode'] else None,
-                },
-                "notes": {
+                }
+
+                payload["shipping_address"] = shipping_address
+
+            if notes is not None:
+
+                notes = {
                     'udf1': notes['udf1'] if notes['udf1'] else None,
                     'udf2': notes['udf2'] if notes['udf2'] else None,
                     'udf3': notes['udf3'] if notes['udf3'] else None,
                 }
-            }
+                payload["notes"] = notes
 
             if pg is not None:
                 self.utility_obj.validate_pg(pg)
@@ -96,20 +111,21 @@ class Order(Paytring):
             response = requests.post(self.order_create_url, json=payload)
             response = response.json()
             if response['status'] == True:
-                    if 'url' in response.keys():
-                        response['url'] = base64.b64decode(response['url']).decode('utf-8')
-                    return {"response": response}
+                if 'url' in response.keys():
+                    response['url'] = base64.b64decode(
+                        response['url']).decode('utf-8')
+                return {"response": response}
             return {"response": response}
         except Exception as e:
-             return {"response" : str(e)}
-        
+            return {"response": str(e)}
+
     def fetch(self, order_id):
         """
         Use to fetch an Order on Paytring throu
 
         Args: 
             order_id : Id for which order object has to be retrieved
-        
+
         Returns:
             Order Dict for given order_id
         """
@@ -129,14 +145,14 @@ class Order(Paytring):
             return {"response": response}
         except Exception as e:
             return {"response": str(e)}
-        
+
     def fetch_by_receipt_id(self, receipt_id):
         """
         Use to fetch an Order on Paytring by receipt-id
 
         Args: 
             receipt_id : Id for which order object has to be retrieved
-        
+
         Returns:
             Order Dict for given receipt_id
         """
@@ -150,21 +166,22 @@ class Order(Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.order_fetch_by_receipt_url, json=payload)
+            response = requests.post(
+                self.order_fetch_by_receipt_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
             return {"response": response}
         except Exception as e:
             return {"response": str(e)}
-        
+
     def refund(self, order_id):
         """
         Use to intaite refund on Paytring by order-id
 
         Args: 
             order_id : Id for which refund is to be intiated
-        
+
         Returns:
             Dict containing 'status' and 'message'
         """
@@ -183,9 +200,8 @@ class Order(Paytring):
             return {"response": response}
         except Exception as e:
             return {"response": str(e)}
-        
-    def process_order(self,order_id,method, code, vpa=None, card=None, device=None):
 
+    def process_order(self, order_id, method, code, vpa=None, card=None, device=None):
         """
         Used to process transaction without opening paytring checkout , also known as seamless api or custom checkout api
 
@@ -201,25 +217,24 @@ class Order(Paytring):
         """
 
         try:
-            
+
             self.utility_obj.validate_order(order_id)
             self.utility_obj.validate_method(method)
             self.utility_obj.validate_code(code)
 
             payload = {
-                "key" : self.key,
-                "order_id" : order_id,
-                "method" : method,
-                "code" : code
+                "key": self.key,
+                "order_id": order_id,
+                "method": method,
+                "code": code
             }
-
 
             if method == "upi" and code == "collect":
                 if vpa is None:
                     raise Exception("VPA info is mandatory")
                 self.utility_obj.validate_vpa(vpa)
                 payload["vpa"] = vpa
-            
+
             if method == 'card':
                 if card is None:
                     raise Exception("Please pass card info in card argument")
@@ -228,32 +243,34 @@ class Order(Paytring):
 
             if method == 'upi' and code == 'intent':
                 if device is None:
-                    raise Exception("Device Info is mandatory, eg. android,ios")
+                    raise Exception(
+                        "Device Info is mandatory, eg. android,ios")
                 self.utility_obj.validate_device(device)
                 payload["device"] = device
 
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.create_seamless_order_url, json=payload)
+            response = requests.post(
+                self.create_seamless_order_url, json=payload)
             response = response.json()
             if response['status'] == True:
-                    if 'url' in response.keys():
-                        response['url'] = base64.b64decode(response['url']).decode('utf-8')
-                    return {"response": response}
+                if 'url' in response.keys():
+                    response['url'] = base64.b64decode(
+                        response['url']).decode('utf-8')
+                return {"response": response}
             return {"response": response}
-            
+
         except Exception as e:
 
             return {"response": str(e)}
-        
 
-    def validate_vpa(self,vpa):
+    def validate_vpa(self, vpa):
         """
         Use by merchants integrating order process api and want to check if customer provided vpa is valid or not.
 
         Args :
             vpa(string) : vpa you want to be validated.
-        
+
         Returns :
 
             Dict having info whether a vpa is valid or not 
@@ -263,7 +280,7 @@ class Order(Paytring):
 
             payload = {
                 "key": self.key,
-                "vpa": vpa 
+                "vpa": vpa
             }
 
             hash = self.utility_obj.create_hash(payload)
@@ -273,18 +290,17 @@ class Order(Paytring):
             if response['status'] == True:
                 return {"response": response}
             return {"response": response}
-            
+
         except Exception as e:
             return {"response": str(e)}
-        
 
-    def validate_card(self,bin):
+    def validate_card(self, bin):
         """
         Use by merchants integrating order process api and want to check if customer provided card is valid or not.
 
         Args :
             bin(string) :  card bin you want to be validated.( first 6 digits of card number )
-        
+
         Returns :
             Dict having info whether a card is valid or not 
 
@@ -294,7 +310,7 @@ class Order(Paytring):
 
             payload = {
                 "key": self.key,
-                "bin": bin 
+                "bin": bin
             }
 
             hash = self.utility_obj.create_hash(payload)
@@ -305,10 +321,11 @@ class Order(Paytring):
             if response['status'] == True:
                 return {"response": response}
             return {"response": response}
-            
+
         except Exception as e:
             return {"response": str(e)}
-        
+
+
 class Subscription(Paytring):
 
     def __init__(self):
@@ -339,15 +356,16 @@ class Subscription(Paytring):
         try:
             self.utility_obj.validate_receipt(receipt_id)
             self.utility_obj.validate_amount(payment_info['amount'])
-            self.utility_obj.validate_currency(payment_info['currency'].upper())
+            self.utility_obj.validate_currency(
+                payment_info['currency'].upper())
             self.utility_obj.validate_plan_title(plan_info['title'])
             self.utility_obj.validate_plan_frequency(plan_info['frequency'])
-        
+
             payload = {
                 "key": self.key,
                 "mer_reference_id": receipt_id,
                 "amount": payment_info['amount'],
-                "currency" : payment_info['currency'] if payment_info['currency'] else 'INR',
+                "currency": payment_info['currency'] if payment_info['currency'] else 'INR',
                 "title": plan_info['title'],
                 "description": plan_info['description'] if plan_info['description'] else None,
                 "frequency": plan_info['frequency'],
@@ -367,15 +385,15 @@ class Subscription(Paytring):
                 return {"response": response}
             return {"response": response}
         except Exception as e:
-             return {"response" : str(e)}
-        
+            return {"response": str(e)}
+
     def fetch_plan(self, plan_id):
         """
         Use to fetch an plan on Paytring throu
 
         Args: 
             plan_id : Id for which plan object has to be retrieved
-        
+
         Returns:
             plan Dict for given plan_id
         """
@@ -395,14 +413,14 @@ class Subscription(Paytring):
             return {"response": response}
         except Exception as e:
             return {"response": str(e)}
-        
+
     def fetch_plan_by_receipt_id(self, receipt_id):
         """
         Use to fetch an Plan on Paytring by receipt-id
 
         Args: 
             receipt_id : Id for which Plan object has to be retrieved
-        
+
         Returns:
             Order Dict for given receipt_id
         """
@@ -416,8 +434,9 @@ class Subscription(Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            
-            response = requests.post(self.plan_fetch_by_receipt_url, json=payload)
+
+            response = requests.post(
+                self.plan_fetch_by_receipt_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
@@ -450,7 +469,7 @@ class Subscription(Paytring):
             self.utility_obj.vaidate_customer_info(customer_info)
             self.utility_obj.validate_email(customer_info['email'])
             self.utility_obj.validate_phone(customer_info['phone'])
-        
+
             payload = {
                 "key": self.key,
                 "mer_reference_id": receipt_id,
@@ -491,6 +510,8 @@ class Subscription(Paytring):
             if pg is not None:
                 self.utility_obj.validate_pg(pg)
                 payload['pg'] = pg
+            else:
+                payload['pg'] = "paytring"
 
             if pg_pool_id is not None:
                 self.utility_obj.validate_pg_pool_id(pg_pool_id)
@@ -499,23 +520,25 @@ class Subscription(Paytring):
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
 
-            response = requests.post(self.subscription_create_url, json=payload)
+            response = requests.post(
+                self.subscription_create_url, json=payload)
             response = response.json()
             if response['status'] == True:
-                    if 'url' in response.keys():
-                        response['url'] = base64.b64decode(response['url']).decode('utf-8')
-                    return {"response": response}
+                if 'url' in response.keys():
+                    response['url'] = base64.b64decode(
+                        response['url']).decode('utf-8')
+                return {"response": response}
             return {"response": response}
         except Exception as e:
-             return {"response" : str(e)}
-        
+            return {"response": str(e)}
+
     def fetch_subscription(self, subscription_id):
         """
         Use to fetch an subscription on Paytring throu
 
         Args: 
             subscription_id : Id for which subscription object has to be retrieved
-        
+
         Returns:
             Subscription Dict for given subscription_id
         """
@@ -535,14 +558,14 @@ class Subscription(Paytring):
             return {"response": response}
         except Exception as e:
             return {"response": str(e)}
-        
+
     def fetch_subscription_by_receipt_id(self, receipt_id):
         """
         Use to fetch an subscription on Paytring by receipt-id
 
         Args: 
             receipt_id : Id for which subscription object has to be retrieved
-        
+
         Returns:
             Subscription Dict for given receipt_id
         """
@@ -556,15 +579,16 @@ class Subscription(Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.subscription_fetch_by_receipt_url, json=payload)
+            response = requests.post(
+                self.subscription_fetch_by_receipt_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
             return {"response": response}
         except Exception as e:
             return {"response": str(e)}
-           
-    
+
+
 class CurrencyConversion(Paytring):
 
     def __init__(self) -> None:
@@ -579,7 +603,7 @@ class CurrencyConversion(Paytring):
         Args:
             currency_from : Base currency you want conversion to happen from
             currency_to : Final currency you want conversion to happen to
-        
+
         Returns:
             Dict with converted currency details
         """
@@ -595,7 +619,8 @@ class CurrencyConversion(Paytring):
             }
             hash = self.utility_obj.create_hash(payload)
             payload['hash'] = hash
-            response = requests.post(self.currency_conversion_url, json=payload)
+            response = requests.post(
+                self.currency_conversion_url, json=payload)
             response = response.json()
             if response['status'] == True:
                 return {"response": response}
